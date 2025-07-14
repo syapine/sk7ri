@@ -1,14 +1,46 @@
-// api/coupons.js
+import admin from 'firebase-admin';
 
-// Firebase 관련 코드를 모두 삭제했습니다.
-// 오직 테스트용 데이터를 보내는 역할만 합니다.
-export default function handler(request, response) {
+// Firebase Admin SDK 초기화
+try {
+  if (admin.apps.length === 0) {
+    admin.initializeApp({
+      credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON))
+    });
+  }
+} catch (e) {
+  console.error('Firebase Admin Init Error', e);
+}
 
-  const testCoupons = [
-    { id: 1, code: 'TEST_성공하면_이게보여요' },
-    { id: 2, code: 'FIREBASE_문제였는지_확인' }
-  ];
+const db = admin.firestore();
 
-  // 성공(200) 응답과 함께 테스트 데이터를 JSON 형태로 보냅니다.
-  response.status(200).json(testCoupons);
+export default async function handler(request, response) {
+  try {
+    // Vercel 환경 변수에서 앱 ID를 가져옵니다.
+    const appId = process.env.APP_ID;
+    if (!appId) {
+        throw new Error('APP_ID 환경 변수가 설정되지 않았습니다.');
+    }
+
+    // 원래 사용하시던 Firestore 경로
+    const couponsRef = db.collection('artifacts').doc(appId).collection('public').doc('data').collection('coupons');
+    const snapshot = await couponsRef.get();
+
+    if (snapshot.empty) {
+      return response.status(200).json([]);
+    }
+
+    const couponList = [];
+    snapshot.forEach(doc => {
+      couponList.push(doc.data());
+    });
+
+    // ID 순서대로 정렬
+    couponList.sort((a, b) => a.id - b.id);
+
+    return response.status(200).json(couponList);
+
+  } catch (error) {
+    console.error('Firestore Error:', error);
+    return response.status(500).json({ message: error.message || '서버에서 쿠폰 목록을 가져오는 데 실패했습니다.' });
+  }
 }
