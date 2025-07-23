@@ -1,14 +1,32 @@
-// 이 파일은 쿠폰 목록을 프론트엔드에 보내주는 역할을 합니다.
-// 나중에 데이터베이스와 연결할 수도 있습니다.
+// api/getCoupons.js
 
-export default function handler(req, res) {
-  const coupons = [
-    { name: '사전등록 보상 쿠폰', code: 'PRESKGB0315' },
-    { name: '론칭 기념 쿠폰', code: 'LAUNCHSKG77' },
-    { name: 'CM 루디의 선물', code: 'CMKGBLOVE' },
-    { name: '새로운 이벤트 쿠폰', code: 'NEWEVENT777' },
-    { name: '테스트용 없는 쿠폰', code: 'INVALIDCODE' } // 테스트용
-  ];
+import admin from 'firebase-admin';
 
-  res.status(200).json(coupons);
+// Firebase Admin SDK 초기화
+// Vercel 환경 변수에서 서비스 계정 키를 읽어옵니다.
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)),
+    databaseURL: "https://seven-knights-rebirth-sk7-default-rtdb.asia-southeast1.firebasedatabase.app" // 본인의 DB 주소로 변경
+  });
+}
+
+const db = admin.database();
+
+export default async function handler(req, res) {
+  try {
+    const ref = db.ref('coupons'); // coupons 경로의 데이터를 참조
+    const snapshot = await ref.once('value');
+    const coupons = snapshot.val();
+
+    // Firebase에서 가져온 객체를 배열 형태로 변환
+    const couponArray = Object.keys(coupons).map(key => ({
+      name: coupons[key].name,
+      code: coupons[key].code
+    }));
+
+    res.status(200).json(couponArray);
+  } catch (error) {
+    res.status(500).json({ message: 'Firebase에서 데이터를 가져오는 데 실패했습니다.', error: error.message });
+  }
 }
