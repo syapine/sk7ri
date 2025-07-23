@@ -5,132 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>세나 리버스 쿠폰 자동 입력기</title>
 <style>
-    /* CSS 스타일은 이전과 동일하므로 생략합니다. */
-    /* 실제 코드에는 이전 CSS 코드를 그대로 넣어주세요. */
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-    body { font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(135deg, #0e0e1a, #0a0a14); color: #e0e0e0; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; overflow-x: hidden; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(135deg, #0e0e1a, #0a0a14); color: #e0e0e0; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
     .container { width: 100%; max-width: 500px; background: rgba(22, 36, 71, 0.5); backdrop-filter: blur(10px); border-radius: 20px; padding: 35px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); border: 1px solid rgba(31, 64, 104, 0.4); }
-    h1 { color: #63d4ff; text-align: center; margin-bottom: 5px; font-weight: 700; letter-spacing: -1px; }
+    h1 { color: #63d4ff; text-align: center; margin-bottom: 5px; font-weight: 700; }
     p { text-align: center; margin-bottom: 30px; color: #a0aec0; }
-    .input-group { margin-bottom: 25px; }
+    .input-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 10px; font-weight: 700; }
     input[type="text"] { width: 100%; padding: 15px; background-color: rgba(26, 26, 46, 0.7); border: 1px solid rgba(31, 64, 104, 0.6); border-radius: 10px; color: #e0e0e0; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s ease; }
     input[type="text"]:focus { outline: none; border-color: #63d4ff; }
-    .coupon-list-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(31, 64, 104, 0.8); padding-bottom: 15px; margin-top: 30px; }
-    .coupon-item { display: flex; justify-content: space-between; align-items: center; padding: 18px; background-color: rgba(26, 26, 46, 0.7); border-radius: 10px; margin-top: 15px; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-    .coupon-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(99, 212, 255, 0.1); }
-    .coupon-info { font-weight: 700; font-size: 1.1rem; }
-    .register-btn { padding: 10px 18px; background: linear-gradient(45deg, #13E2DA, #1E90FF); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); min-width: 110px; text-align: center; }
-    .register-btn.success { background: #28a745; }
-    .register-btn.fail { background: #dc3545; }
-    .register-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; transform: none; box-shadow: none; }
-    .loader { text-align: center; padding: 30px; color: #b3c5ef; font-size: 18px; }
+    .main-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #13E2DA, #1E90FF); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
+    .main-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
+    .log-container { margin-top: 25px; background-color: rgba(26, 26, 46, 0.7); border-radius: 8px; padding: 15px; min-height: 150px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #b3c5ef; border: 1px solid rgba(31, 64, 104, 0.6); }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>세븐나이츠 리버스 쿠폰 자동 입력기</h1>
-    <p>UID를 입력하면 쿠폰이 자동으로 등록됩니다.</p>
+    <h1>세나 리버스 쿠폰 자동 입력기</h1>
+    <p>UID를 입력하고 버튼을 누르면 사용 가능한 모든 쿠폰이 자동으로 등록됩니다.</p>
+    
     <div class="input-group">
         <label for="uid">회원번호 (UID)</label>
         <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
     </div>
-    <div class="coupon-list-header">
-        <h2>사용 가능한 쿠폰 목록</h2>
-        <span id="coupon-count"></span>
-    </div>
-    <div id="coupon-list">
-        <div class="loader">쿠폰 목록을 불러오는 중...</div>
-    </div>
+    
+    <button id="register-all-btn" class="main-btn" disabled>UID를 입력하세요</button>
+    
+    <div id="log-container" class="log-container">결과 로그가 여기에 표시됩니다.</div>
 </div>
 
 <script>
     const uidInput = document.getElementById('uid');
-    const couponListDiv = document.getElementById('coupon-list');
-    const couponCountSpan = document.getElementById('coupon-count');
+    const registerBtn = document.getElementById('register-all-btn');
+    const logContainer = document.getElementById('log-container');
 
-    // 1. 페이지가 열리면 우리 서버(/api/getCoupons)에서 쿠폰 목록을 가져옵니다.
-    async function initialize() {
-        try {
-            const response = await fetch('/api/getCoupons');
-            if (!response.ok) throw new Error('서버에서 쿠폰 목록을 가져오는데 실패했습니다.');
-            const coupons = await response.json();
-            renderCouponList(coupons);
-        } catch (error) {
-            couponListDiv.innerHTML = `<div class="loader" style="color: #ff5252;">${error.message}</div>`;
-        }
-    }
-
-    // 2. 받아온 쿠폰 목록을 화면에 표시합니다.
-    function renderCouponList(coupons) {
-        couponListDiv.innerHTML = '';
-        coupons.forEach(coupon => {
-            const couponItem = document.createElement('div');
-            couponItem.className = 'coupon-item';
-            couponItem.innerHTML = `
-                <div class="coupon-info">${coupon.name}</div>
-                <button class="register-btn" data-code="${coupon.code}" disabled>UID 입력 필요</button>
-            `;
-            couponListDiv.appendChild(couponItem);
-        });
-        couponCountSpan.textContent = `총 ${coupons.length}개`;
-        uidInput.dispatchEvent(new Event('input')); // UID 입력 상태에 따라 버튼 업데이트
-    }
-
-    // 3. UID 입력에 따라 버튼 상태를 변경합니다.
+    // UID 입력에 따라 버튼 활성화/비활성화
     uidInput.addEventListener('input', () => {
         const uid = uidInput.value.trim();
-        document.querySelectorAll('.register-btn').forEach(button => {
-            // 이미 상태가 변경된 버튼은 건드리지 않음
-            if (button.classList.contains('success') || button.classList.contains('fail')) {
-                return;
-            }
-            button.disabled = !uid;
-            button.textContent = uid ? '등록' : 'UID 입력 필요';
-        });
+        if (uid) {
+            registerBtn.disabled = false;
+            registerBtn.textContent = '전체 쿠폰 등록하기';
+        } else {
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'UID를 입력하세요';
+        }
     });
 
-    // 4. '등록' 버튼을 눌렀을 때의 동작
-    couponListDiv.addEventListener('click', async (event) => {
-        if (!event.target.classList.contains('register-btn') || event.target.disabled) {
-            return;
-        }
-
-        const button = event.target;
-        const couponCode = button.dataset.code;
+    // '전체 등록' 버튼 클릭 시 동작
+    registerBtn.addEventListener('click', async () => {
         const uid = uidInput.value.trim();
+        if (!uid) return;
 
-        button.disabled = true;
-        button.textContent = '등록 중...';
+        registerBtn.disabled = true;
+        registerBtn.textContent = '등록 진행 중...';
+        logContainer.textContent = '최신 쿠폰 목록을 불러와 등록을 시작합니다...';
 
-        // 우리 백엔드(/api/registerCoupon)에 등록을 요청합니다.
         try {
-            const response = await fetch('/api/registerCoupon', {
+            const response = await fetch('/api/registerAllCoupons', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid, couponCode })
+                body: JSON.stringify({ uid })
             });
 
             const result = await response.json();
-            
-            // 넷마블 서버의 응답 코드에 따라 버튼 상태 변경
-            if (result.resultCode === 'SUCCESS') {
-                button.textContent = '등록 성공';
-                button.classList.add('success');
+
+            if (response.ok) {
+                logContainer.textContent = result.log;
             } else {
-                // 실패 사유에 따라 다른 텍스트 표시 (예: '이미 사용')
-                button.textContent = result.resultString || '등록 실패';
-                button.classList.add('fail');
+                logContainer.textContent = `오류 발생: ${result.message || '알 수 없는 서버 오류'}`;
             }
 
         } catch (error) {
-            button.textContent = '오류 발생';
-            button.classList.add('fail');
+            logContainer.textContent = `치명적인 오류 발생: ${error.message}`;
+        } finally {
+            registerBtn.disabled = false;
+            registerBtn.textContent = '전체 쿠폰 등록하기';
+            uidInput.dispatchEvent(new Event('input')); // 버튼 상태 다시 체크
         }
     });
-
-    initialize();
 </script>
 
 </body>
