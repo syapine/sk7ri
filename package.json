@@ -1,8 +1,8 @@
 {
-  "name": "sk7ri-coupon-app",
+  "name": "sk7ri-coupon-backend",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "node-fetch": "^3.3.2"
+    "firebase-admin": "^13.4.0"
   }
 }
