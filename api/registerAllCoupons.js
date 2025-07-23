@@ -13,10 +13,9 @@ const db = admin.database();
 // 개별 쿠폰을 등록하고 결과를 해석하는 최종 함수
 async function registerSingleCoupon(uid, coupon) {
   try {
-    // 최종 수정: POST 방식이 아닌 GET 방식으로 URL에 정보를 담아 요청합니다.
-    const targetUrl = `https://coupon.netmarble.com/api/coupon/use/tskgb?channel=COUPON&couponId=${coupon.code}&playerId=${uid}`;
+    // 최종 수정: /api/coupon/use/ 경로를 삭제하고 올바른 주소로 변경
+    const targetUrl = `https://coupon.netmarble.com/tskgb?channel=COUPON&couponId=${coupon.code}&playerId=${uid}`;
 
-    // method를 지정하지 않으면 기본적으로 GET 요청입니다.
     const response = await fetch(targetUrl);
     const result = await response.json();
     
@@ -24,13 +23,10 @@ async function registerSingleCoupon(uid, coupon) {
     if (result.resultCode === 'SUCCESS') {
       return `✅ [${coupon.name}] 등록 성공!`;
     } 
-    // 실제 응답 코드에 맞춰 'ALREADY_USED_COUPON' 등을 추가할 수 있습니다.
-    // 우선 resultString에 '사용된' 이라는 단어가 포함된 경우로 처리합니다.
-    else if (result.resultString && result.resultString.includes('사용된 쿠폰')) {
+    else if (result.resultString && (result.resultString.includes('사용된 쿠폰') || result.resultString.includes('이미 지급'))) {
       return `☑️ [${coupon.name}] 이미 사용한 쿠폰입니다.`;
     } 
     else {
-      // 그 외 모든 실패는 서버가 주는 메시지를 그대로 사용
       return `❌ [${coupon.name}] 실패: ${result.resultString || result.resultCode}`;
     }
   } catch (error) {
