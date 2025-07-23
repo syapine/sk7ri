@@ -7,7 +7,7 @@ import admin from 'firebase-admin';
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)),
-    databaseURL: "https://seven-knights-rebirth-sk7-default-rtdb.asia-southeast1.firebasedatabase.app" // 본인의 DB 주소로 변경
+    databaseURL: "https://sk7re-9eefb-default-rtdb.firebaseio.com/" // 본인의 DB 주소로 변경
   });
 }
 
