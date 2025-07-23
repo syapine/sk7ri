@@ -18,20 +18,18 @@ async function registerSingleCoupon(uid, coupon) {
     const response = await fetch(targetUrl);
     const result = await response.json();
     
-    // 최종 수정: 성공 케이스를 먼저 확인하도록 로직 변경
-    // errorCode가 없거나, resultCode가 'SUCCESS'이면 성공으로 처리
-    if (!result.errorCode || result.resultCode === 'SUCCESS') {
+    // 최종 로직: errorCode의 존재 여부로만 성공/실패를 판단
+    if (!result.errorCode) {
+      // errorCode가 없으면 성공으로 간주합니다.
       return `✅ [${coupon.name}] 등록 성공!`;
-    } 
-    
-    // 이미 사용한 경우
-    if (result.errorMessage && (result.errorMessage.includes('초과') || result.errorMessage.includes('사용된'))) {
-      return `☑️ [${coupon.name}] 이미 사용한 쿠폰입니다.`;
-    } 
-    
-    // 그 외 모든 실패
-    else {
-      return `❌ [${coupon.name}] 실패: ${result.errorMessage || '알 수 없는 오류'}`;
+    } else {
+      // errorCode가 있으면 실패 또는 이미 사용된 경우입니다.
+      if (result.errorMessage && (result.errorMessage.includes('초과') || result.errorMessage.includes('사용된'))) {
+        return `☑️ [${coupon.name}] 이미 사용한 쿠폰입니다.`;
+      } else {
+        // 그 외 모든 실패는 서버가 주는 메시지를 그대로 표시합니다.
+        return `❌ [${coupon.name}] 실패: ${result.errorMessage || '알 수 없는 오류'}`;
+      }
     }
   } catch (error) {
     return `❌ [${coupon.name}] 실패: 응답 해석 오류 - ${error.message}`;
