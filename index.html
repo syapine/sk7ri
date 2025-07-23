@@ -6,16 +6,9 @@
     <title>세나 리버스 쿠폰 자동 입력기</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-    
     body {
         font-family: 'Noto Sans KR', sans-serif;
-        background-image: url('images/seven2.png'); 
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        background-color: rgba(0, 0, 0, 0.6);
-        background-blend-mode: multiply;
-
+        background: linear-gradient(135deg, #0e0e1a, #0a0a14); /* 더 깊고 어두운 그라데이션 */
         color: #e0e0e0;
         margin: 0;
         padding: 20px;
@@ -29,15 +22,15 @@
     .container {
         width: 100%;
         max-width: 500px;
-        background: rgba(22, 36, 71, 0.6); 
-        backdrop-filter: blur(10px);
+        background: rgba(22, 36, 71, 0.5); /* 반투명 배경 */
+        backdrop-filter: blur(10px); /* 배경 흐림 효과 */
         border-radius: 20px;
         padding: 35px;
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
         border: 1px solid rgba(31, 64, 104, 0.4);
     }
     h1 {
-        color: #63d4ff; 
+        color: #63d4ff; /* 좀 더 부드러운 청록색 */
         text-align: center;
         margin-bottom: 5px;
         font-weight: 700;
@@ -46,7 +39,7 @@
     p {
         text-align: center;
         margin-bottom: 30px;
-        color: #a0aec0;
+        color: #a0aec0; /* 회색 톤 조정 */
     }
     .input-group {
         margin-bottom: 25px;
@@ -56,26 +49,21 @@
         margin-bottom: 10px;
         font-weight: 700;
     }
-
     input[type="text"] {
         width: 100%;
         padding: 15px;
-        background-color: rgba(10, 20, 40, 0.75); 
+        background-color: rgba(26, 26, 46, 0.7);
         border: 1px solid rgba(31, 64, 104, 0.6);
         border-radius: 10px;
         color: #e0e0e0;
         font-size: 16px;
         box-sizing: border-box;
- 
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        transition: border-color 0.3s ease;
     }
-
     input[type="text"]:focus {
         outline: none;
         border-color: #63d4ff;
-        box-shadow: 0 0 15px rgba(99, 212, 255, 0.3); /* 은은한 네온 효과 */
     }
-
     .coupon-list-header {
         display: flex;
         justify-content: space-between;
@@ -131,39 +119,18 @@
         color: #b3c5ef;
         font-size: 18px;
     }
-
-.register-btn.used {
-    background: #4a5568;
-    color: #a0aec0;
-    cursor: default;
-}
-.register-btn.used:hover {
-    transform: none;
-    box-shadow: none;
-}
-.input-group {
-  position: relative;
-}
-
-.creator-credit {
-  position: absolute; 
-  top: 0;             
-  right: 0;           
-  font-size: 12px;
-  color: #a0aec0;    }
 </style>
 </head>
 <body>
 
 <div class="container">
     <h1>세븐나이츠 리버스 쿠폰 자동 입력기</h1>
-    <p>UID를 입력하고 등록할 쿠폰의 버튼을 누르세요.</p>
+    <p>UID를 입력하고, 등록할 쿠폰의 버튼을 누르세요.</p>
 
-<div class="input-group">
-    <label for="uid">회원번호 (UID)</label>
-    <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
-    <span class="creator-credit">by 샤피네</span>
-</div>
+    <div class="input-group">
+        <label for="uid">회원번호 (UID)</label>
+        <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
+    </div>
 
     <div class="coupon-list-header">
         <h2>사용 가능한 쿠폰 목록</h2>
@@ -178,56 +145,59 @@
     const uidInput = document.getElementById('uid');
     const couponListDiv = document.getElementById('coupon-list');
     const couponCountSpan = document.getElementById('coupon-count');
+    // 넷마블 쿠폰 등록 페이지 주소 형식
     const baseURL = 'https://coupon.netmarble.com/tskgb?playerId=';
+
     let coupons = [];
 
-
-    async function initialize() {
+    // 페이지가 열리면 이 함수가 실행됩니다.
+    function initialize() {
         try {
-            const response = await fetch('https://sk7r.vercel.app/api/coupons');
-            if (!response.ok) {
-                throw new Error('Failed to fetch');
-            }
-            coupons = await response.json();
-            renderCouponList();
+            // ================== 여기를 수정했습니다! ==================
+            // 서버에서 가져오는 대신, 쿠폰 목록을 직접 여기에 작성합니다.
+            // 새로운 쿠폰이 나오면 이 목록에 추가해주시면 됩니다.
+            const currentCoupons = [
+                { name: '사전등록 보상 쿠폰', code: 'PRESKGB0315' },
+                { name: '론칭 기념 쿠폰', code: 'LAUNCHSKG77' },
+                { name: 'CM 루디의 선물', code: 'CMKGBLOVE' },
+                { name: '새로운 이벤트 쿠폰', code: 'NEWEVENT777' } // 예시 쿠폰
+            ];
+            
+            coupons = currentCoupons;
+            renderCouponList(coupons);
+            // ========================================================
+
         } catch (error) {
-            console.error(error);
             couponListDiv.innerHTML = `<div class="loader" style="color: #ff5252;">${error.message}</div>`;
         }
     }
+    
+    // 쿠폰 목록을 화면에 예쁘게 그려주는 함수
+    function renderCouponList(coupons) {
+        couponListDiv.innerHTML = ''; 
+        if (coupons.length === 0) {
+            couponListDiv.innerHTML = '<div class="loader">현재 사용 가능한 쿠폰이 없습니다.</div>';
+            return;
+        }
 
-
-function renderCouponList() {
-    couponListDiv.innerHTML = '';
-    if (coupons.length === 0) {
-        couponListDiv.innerHTML = '<div class="loader">현재 사용 가능한 쿠폰이 없습니다.</div>';
-        return;
+        coupons.forEach(coupon => {
+            const couponItem = document.createElement('div');
+            couponItem.className = 'coupon-item';
+            couponItem.innerHTML = `
+                <div class="coupon-info">${coupon.name}</div>
+                <button class="register-btn" data-code="${coupon.code}" disabled>UID 입력 필요</button>
+            `;
+            couponListDiv.appendChild(couponItem);
+        });
+        couponCountSpan.textContent = `총 ${coupons.length}개`;
     }
 
-    const uid = uidInput.value.trim();
+    // UID 입력창에 글자를 쓸 때마다 버튼을 활성화/비활성화 하는 기능
+    uidInput.addEventListener('input', function() {
+        const uid = uidInput.value.trim();
+        const allButtons = document.querySelectorAll('.register-btn');
 
-    coupons.forEach(coupon => {
-        const couponItem = document.createElement('div');
-        couponItem.className = 'coupon-item';
-
-        const couponInfo = document.createElement('div');
-        couponInfo.className = 'coupon-info';
-
-
-        couponInfo.textContent = `${coupon.id}. ${coupon.code}`;
-
-        const button = document.createElement('button');
-        button.className = 'register-btn';
-        button.dataset.code = coupon.code;
-        
-        const key = `usedCoupon_${uid}_${coupon.code}`;
-        const isUsed = uid ? localStorage.getItem(key) : false;
-
-        if (isUsed) {
-            button.classList.add('used');
-            button.textContent = '등록완료';
-            button.disabled = false;
-        } else {
+        allButtons.forEach(button => {
             if (uid) {
                 button.disabled = false;
                 button.textContent = '등록하러 가기';
@@ -235,22 +205,13 @@ function renderCouponList() {
                 button.disabled = true;
                 button.textContent = 'UID 입력 필요';
             }
-        }
-        
-        couponItem.appendChild(couponInfo);
-        couponItem.appendChild(button);
-        couponListDiv.appendChild(couponItem);
-    });
-    couponCountSpan.textContent = `총 ${coupons.length}개`;
-}
-
-    uidInput.addEventListener('input', function() {
-        renderCouponList();
+        });
     });
 
+    // '등록하러 가기' 버튼을 클릭했을 때의 동작
     couponListDiv.addEventListener('click', function(event) {
-        const button = event.target;
-        if (button.classList.contains('register-btn') && !button.classList.contains('used')) {
+        if (event.target.classList.contains('register-btn')) {
+            const button = event.target;
             const couponCode = button.dataset.code;
             const uid = uidInput.value.trim();
 
@@ -258,19 +219,18 @@ function renderCouponList() {
                 alert('UID를 먼저 입력해주세요.');
                 return;
             }
-            
-            const key = `usedCoupon_${uid}_${couponCode}`;
-            localStorage.setItem(key, 'true');
-            
-            button.classList.add('used');
-            button.textContent = '등록완료';
 
-            const finalURL = `${baseURL}${uid}&code=${couponCode}`;
+            // URL에 UID와 쿠폰 코드를 조합하여 최종 주소를 만듭니다.
+            const finalURL = `${baseURL}${uid}&couponId=${couponCode}`;
+            
+            // 완성된 주소를 새 탭으로 엽니다.
             window.open(finalURL, '_blank');
         }
     });
     
+    // 페이지 시작!
     initialize();
 </script>
+
 </body>
 </html>
