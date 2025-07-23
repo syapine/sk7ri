@@ -13,9 +13,10 @@ const db = admin.database();
 // 개별 쿠폰을 등록하고 결과를 해석하는 최종 함수
 async function registerSingleCoupon(uid, coupon) {
   try {
-    // 최종 수정: /api/coupon/use/ 경로를 삭제하고 올바른 주소로 변경
-    const targetUrl = `https://coupon.netmarble.com/tskgb?channel=COUPON&couponId=${coupon.code}&playerId=${uid}`;
+    // 사용자가 찾아낸 진짜 API 주소와 파라미터를 사용합니다.
+    const targetUrl = `https://coupon.netmarble.com/api/coupon/reward?gameCode=tskgb&couponCode=${coupon.code}&langCd=KO_KR&pid=${uid}`;
 
+    // Request Method가 'GET'이므로 fetch에 별도 옵션이 필요 없습니다.
     const response = await fetch(targetUrl);
     const result = await response.json();
     
@@ -30,7 +31,8 @@ async function registerSingleCoupon(uid, coupon) {
       return `❌ [${coupon.name}] 실패: ${result.resultString || result.resultCode}`;
     }
   } catch (error) {
-    return `❌ [${coupon.name}] 실패: 요청 중 오류 발생 - ${error.message}`;
+    // 만약 여기서 오류가 난다면, 넷마블이 JSON이 아닌 다른 응답을 준 경우입니다.
+    return `❌ [${coupon.name}] 실패: 응답 해석 오류 - ${error.message}`;
   }
 }
 
