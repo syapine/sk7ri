@@ -10,7 +10,7 @@ if (!admin.apps.length) {
 
 const db = admin.database();
 
-// 결과를 해석하지 않고, 서버 응답을 그대로 보여주는 진단용 함수
+// 개별 쿠폰을 등록하고 결과를 해석하는 최종 함수
 async function registerSingleCoupon(uid, coupon) {
   try {
     const targetUrl = `https://coupon.netmarble.com/api/coupon/reward?gameCode=tskgb&couponCode=${coupon.code}&langCd=KO_KR&pid=${uid}`;
@@ -18,11 +18,20 @@ async function registerSingleCoupon(uid, coupon) {
     const response = await fetch(targetUrl);
     const result = await response.json();
     
-    // 서버가 준 응답(result)을 JSON 문자열 그대로 반환합니다.
-    return `➡️ [${coupon.name}] 서버 응답: ${JSON.stringify(result)}`;
-
+    // 실제 응답 데이터인 errorCode와 errorMessage를 사용합니다.
+    if (result.errorCode) {
+      // errorCode가 존재하면 실패 또는 이미 사용된 경우입니다.
+      if (result.errorMessage && result.errorMessage.includes('초과')) {
+        return `☑️ [${coupon.name}] 이미 사용한 쿠폰입니다.`;
+      } else {
+        return `❌ [${coupon.name}] 실패: ${result.errorMessage}`;
+      }
+    } else {
+      // errorCode가 없으면 성공으로 간주합니다.
+      return `✅ [${coupon.name}] 등록 성공!`;
+    }
   } catch (error) {
-    return `❌ [${coupon.name}] 실패: 요청 중 오류 발생 - ${error.message}`;
+    return `❌ [${coupon.name}] 실패: 응답 해석 오류 - ${error.message}`;
   }
 }
 
