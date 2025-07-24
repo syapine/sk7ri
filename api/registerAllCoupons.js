@@ -18,17 +18,15 @@ async function registerSingleCoupon(uid, coupon) {
     const response = await fetch(targetUrl);
     const result = await response.json();
     
-    // 최종 로직: 실제 응답 데이터의 errorCode를 기준으로 모든 케이스를 처리
+    // 실제 응답 데이터의 errorCode를 기준으로 모든 케이스를 처리
     if (result.errorCode === 200 && result.success === true) {
-      // Case 1: 성공적인 등록
-      return `✅ [${coupon.code}] ${coupon.name} - 등록 성공!`;
+      // --- 바로 이 부분의 메시지가 수정되었습니다 ---
+      return `✅ [${coupon.code}] ${coupon.name} - 미사용 쿠폰입니다.`;
     } 
     else if (result.errorCode === 24004) {
-      // Case 2: 이미 사용했거나 교환 횟수 초과
       return `☑️ [${coupon.code}] ${coupon.name} - 이미 사용한 쿠폰입니다.`;
     } 
     else {
-      // Case 3: 그 외 모든 실패 사례 (없는 쿠폰 등)
       return `❌ [${coupon.code}] ${coupon.name} - 실패: ${result.errorMessage || '알 수 없는 오류'}`;
     }
   } catch (error) {
