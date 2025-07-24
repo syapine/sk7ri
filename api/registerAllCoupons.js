@@ -18,22 +18,18 @@ async function registerSingleCoupon(uid, coupon) {
     const response = await fetch(targetUrl);
     const result = await response.json();
     
-    // 최종 로직 수정: 'SUCCESS' 메시지를 최우선으로 확인
-    if (result.errorMessage === 'SUCCESS' || result.resultCode === 'SUCCESS') {
-      return `✅ [${coupon.name}] 등록 성공!`;
-    }
-    
-    // 이미 사용한 경우 확인
-    if (result.errorMessage && (result.errorMessage.includes('초과') || result.errorMessage.includes('사용된'))) {
-      return `☑️ [${coupon.name}] 이미 사용한 쿠폰입니다.`;
-    } 
-    
-    // 그 외 모든 실패 사례
-    else {
-      return `❌ [${coupon.name}] 실패: ${result.errorMessage || result.resultCode || '알 수 없는 오류'}`;
+    // --- 이 아랫부분의 메시지 형식을 수정했습니다 ---
+    if (!result.errorCode) {
+      return `✅ [${coupon.code}] ${coupon.name} - 등록 성공!`;
+    } else {
+      if (result.errorMessage && (result.errorMessage.includes('초과') || result.errorMessage.includes('사용된'))) {
+        return `☑️ [${coupon.code}] ${coupon.name} - 이미 사용한 쿠폰입니다.`;
+      } else {
+        return `❌ [${coupon.code}] ${coupon.name} - 실패: ${result.errorMessage || '알 수 없는 오류'}`;
+      }
     }
   } catch (error) {
-    return `❌ [${coupon.name}] 실패: 응답 해석 오류 - ${error.message}`;
+    return `❌ [${coupon.code}] ${coupon.name} - 실패: 응답 해석 오류 - ${error.message}`;
   }
 }
 
