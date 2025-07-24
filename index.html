@@ -3,152 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>세나 리버스 쿠폰 사용 확인기 by syapine</title>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-    
-    body { 
-        font-family: 'Noto Sans KR', sans-serif;
-        background-image: url('images/seven3.png'); 
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        color: #e0e0e0; 
-        margin: 0; 
-        padding: 20px; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh; 
-        box-sizing: border-box; 
-    }
-
-    .container { 
-        width: 100%; 
-        max-width: 500px; 
-        background: rgba(22, 36, 71, 0.75);
-        backdrop-filter: blur(10px); 
-        border-radius: 20px; 
-        padding: 35px; 
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); 
-        border: 1px solid rgba(31, 64, 104, 0.4); 
-    }
-    h1 { color: #63d4ff; text-align: center; margin-bottom: 5px; font-weight: 700; }
-    p { text-align: center; margin-bottom: 30px; color: #a0aec0; }
-    .input-group { margin-bottom: 20px; }
-    label { display: block; margin-bottom: 10px; font-weight: 700; }
-    input[type="text"] { width: 100%; padding: 15px; background-color: rgba(26, 26, 46, 0.7); border: 1px solid rgba(31, 64, 104, 0.6); border-radius: 10px; color: #e0e0e0; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s ease; }
-    input[type="text"]:focus { outline: none; border-color: #63d4ff; }
-    .main-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #13E2DA, #1E90FF); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
-    .main-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
-    .log-container { margin-top: 25px; background-color: rgba(26, 26, 46, 0.7); border-radius: 8px; padding: 15px; min-height: 150px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #b3c5ef; border: 1px solid rgba(31, 64, 104, 0.6); }
-
-    #log-container a {
-        color: #63d4ff;
-        text-decoration: none;
-        font-weight: bold;
-    }
-    #log-container a:hover {
-        text-decoration: underline;
-    }
-
-    .creator-credit {
-        display: block;
-        text-align: right;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.4);
-        margin-top: 8px;
-    }
-</style>
-</head>
-<body>
-
-<div class="container">
-    <h1>세나 리버스 쿠폰 사용 확인기</h1>
-    <p>UID를 입력하고 버튼을 누르면 쿠폰 사용 여부를 확인합니다. 미사용 쿠폰은 클릭해서 등록하세요.</p>
-    
-    <div class="input-group">
-        <label for="uid">회원번호 (UID)</label>
-        <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
-        <span class="creator-credit">by syapine</span>
-    </div>
-    
-    <button id="register-all-btn" class="main-btn" disabled>전체 쿠폰 확인하기</button>
-    
-    <div id="log-container" class="log-container">결과 로그가 여기에 표시됩니다.</div>
-</div>
-
-<script>
-    const uidInput = document.getElementById('uid');
-    const registerBtn = document.getElementById('register-all-btn');
-    const logContainer = document.getElementById('log-container');
-
-    uidInput.addEventListener('input', () => {
-        const uid = uidInput.value.trim();
-        if (uid) {
-            registerBtn.disabled = false;
-            registerBtn.textContent = '전체 쿠폰 확인하기';
-        } else {
-            registerBtn.disabled = true;
-            registerBtn.textContent = 'UID를 입력하세요';
+    <title>쿠폰 자동 등록 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
         }
-    });
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100">
+    <div class="container mx-auto max-w-xl p-4 sm:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-slate-900">쿠폰 자동 등록 시스템</h1>
+            <p class="text-slate-600 mt-2">UID를 입력하고 등록할 쿠폰을 선택하세요.</p>
+        </header>
 
-    registerBtn.addEventListener('click', async () => {
-        const uid = uidInput.value.trim();
-        if (!uid) return;
+        <!-- Input Section -->
+        <div class="bg-white p-6 rounded-xl shadow-md mb-6">
+            <div class="space-y-4">
+                <div>
+                    <label for="user-id" class="block text-sm font-medium text-slate-700 mb-1">
+  회원번호 (UID) by 샤피네
+</label>
+                    <input type="text" id="user-id" placeholder="넷마블 UID를 입력하세요" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button id="load-coupons-btn" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all">
+                    등록 가능한 쿠폰 불러오기
+                </button>
+            </div>
+        </div>
 
-        registerBtn.disabled = true;
-        registerBtn.textContent = '확인 중...';
-        logContainer.textContent = '최신 쿠폰 목록을 불러와 사용 여부를 확인합니다...';
+        <!-- Coupon List Section -->
+        <div>
+            <h2 class="text-2xl font-semibold mb-4">쿠폰 목록</h2>
+            <div id="coupon-list" class="space-y-3">
+                <!-- Coupons will be dynamically inserted here -->
+            </div>
+            <div id="info-message" class="text-center bg-white p-8 rounded-xl shadow-sm">
+                <p class="text-slate-500">UID를 입력하고 쿠폰을 불러오세요.</p>
+            </div>
+        </div>
+    </div>
 
+    <script type="module">
+        // Firebase SDK - Firestore 데이터 조회를 위해 필요합니다.
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- DOM Elements ---
+        const userIdInput = document.getElementById('user-id');
+        const loadCouponsBtn = document.getElementById('load-coupons-btn');
+        const couponList = document.getElementById('coupon-list');
+        const infoMessage = document.getElementById('info-message');
+
+        // --- Configuration ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        =================================================================================
+
+        const cloudFunctionUrl = '/api/register'; 
+        =================================================================================
+
+        let db;
         try {
-            const response = await fetch('/api/registerAllCoupons', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid })
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+        } catch (e) {
+            console.error("Firebase 초기화 실패", e);
+            infoMessage.textContent = '시스템 초기화에 실패했습니다.';
+        }
+
+        async function loadAndRenderCoupons() {
+            if (!db) {
+                alert('데이터베이스에 연결되지 않았습니다.');
+                return;
+            }
+            infoMessage.textContent = '쿠폰을 불러오는 중...';
+            infoMessage.classList.remove('hidden');
+            couponList.innerHTML = '';
+
+            try {
+                const couponsCollectionPath = `/artifacts/${appId}/public/data/coupons`;
+                const q = query(collection(db, couponsCollectionPath));
+                const querySnapshot = await getDocs(q);
+                const coupons = [];
+                querySnapshot.forEach((doc) => coupons.push({ id: doc.id, ...doc.data() }));
+
+                if (coupons.length === 0) {
+                    infoMessage.textContent = '등록된 쿠폰이 없습니다. 관리자가 쿠폰을 추가해야 합니다.';
+                } else {
+                    infoMessage.classList.add('hidden');
+                    renderCoupons(coupons);
+                }
+            } catch (error) {
+                console.error("쿠폰 로딩 오류: ", error);
+                infoMessage.textContent = '쿠폰을 불러오는 중 오류가 발생했습니다.';
+            }
+        }
+
+        function renderCoupons(coupons) {
+            couponList.innerHTML = '';
+            coupons.forEach(coupon => {
+                const couponEl = document.createElement('div');
+                couponEl.className = 'bg-white p-4 rounded-lg shadow-sm flex items-center justify-between gap-3';
+                couponEl.innerHTML = `
+                    <div class="flex-grow">
+                        <p class="font-semibold text-slate-800">${coupon.desc || '이름 없는 쿠폰'}</p>
+                        <p class="text-sm text-slate-500 font-mono">${coupon.code}</p>
+                    </div>
+                    <button data-code="${coupon.code}" class="register-btn flex-shrink-0 bg-green-600 text-white text-sm font-bold py-2 px-4 rounded-md hover:bg-green-700 transition-all">등록</button>
+                    <div class="status-indicator hidden w-24 text-sm text-center"></div>
+                `;
+                couponList.appendChild(couponEl);
             });
+        }
 
-            const result = await response.json();
-
-            if (response.ok) {
-                logContainer.innerHTML = '';
-                const lines = result.log.split('\n');
-                
-                lines.forEach((line, index) => {
-                    const lineDiv = document.createElement('div');
-                    
-                    const match = line.match(/^(✅|☑️|❌) \[(.+?)\] (.+?) - (.+)/);
-                    
-                    if (match) {
-                        const icon = match[1];
-                        const couponCode = match[2];
-                        const couponName = match[3];
-                        const message = match[4];
-                        
-                        const registerUrl = `https://coupon.netmarble.com/tskgb?playerId=${uid}&couponId=${couponCode}`;
-                        
-                        /* --- 이 부분의 순서만 수정했습니다 --- */
-                        lineDiv.innerHTML = `${icon} ${index + 1}. <a href="${registerUrl}" target="_blank">${couponCode}</a> ${couponName} - ${message}`;
-                    } else {
-                        lineDiv.textContent = line;
-                    }
-                    logContainer.appendChild(lineDiv);
-                });
-
-            } else {
-                logContainer.textContent = `오류 발생: ${result.message || '알 수 없는 서버 오류'}`;
+        async function registerCoupon(button) {
+            const uid = userIdInput.value.trim();
+            if (!uid) {
+                alert('고객 ID (UID)를 먼저 입력해주세요!');
+                userIdInput.focus();
+                return;
+            }
+            
+            if (cloudFunctionUrl === 'YOUR_CLOUD_FUNCTION_URL_HERE') {
+                alert('오류: Cloud Function URL이 설정되지 않았습니다. 관리자에게 문의하세요.');
+                return;
             }
 
-        } catch (error) {
-            logContainer.textContent = `치명적인 오류 발생: ${error.message}`;
-        } finally {
-            registerBtn.disabled = false;
-            registerBtn.textContent = '전체 쿠폰 확인하기';
-            uidInput.dispatchEvent(new Event('input'));
-        }
-    });
-</script>
+            const couponCode = button.dataset.code;
+            const statusEl = button.nextElementSibling;
 
+            // Show loader
+            button.classList.add('hidden');
+            statusEl.classList.remove('hidden', 'text-green-600', 'text-red-600');
+            statusEl.innerHTML = '<div class="loader mx-auto"></div>';
+
+            try {
+                const response = await fetch(cloudFunctionUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ uid: uid, couponCode: couponCode })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    statusEl.textContent = '등록 성공!';
+                    statusEl.className = 'status-indicator w-24 text-sm text-center font-bold text-green-600';
+                } else {
+                    // 실패 시 버튼 다시 보이게 함
+                    button.classList.remove('hidden');
+                    statusEl.classList.add('hidden');
+                    alert(`등록 실패: ${result.message || '알 수 없는 오류'}`);
+                }
+            } catch (error) {
+                console.error('자동 등록 함수 호출 오류:', error);
+                button.classList.remove('hidden');
+                statusEl.classList.add('hidden');
+                alert('자동 등록 중 오류가 발생했습니다. 서버 상태를 확인해주세요.');
+            }
+        }
+
+        loadCouponsBtn.addEventListener('click', loadAndRenderCoupons);
+        couponList.addEventListener('click', (e) => {
+            if (e.target.classList.contains('register-btn')) {
+                registerCoupon(e.target);
+            }
+        });
+    </script>
 </body>
 </html>
