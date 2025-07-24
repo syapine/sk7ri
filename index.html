@@ -66,23 +66,6 @@
         color: rgba(255, 255, 255, 0.4);
         margin-top: 8px;
     }
-
-    .link-button {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 20px;
-        padding: 12px;
-        background-color: rgba(126, 87, 194, 0.5);
-        color: #d1c4e9;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-    .link-button:hover {
-        background-color: rgba(126, 87, 194, 0.8);
-    }
 </style>
 </head>
 <body>
@@ -94,35 +77,27 @@
     <div class="input-group">
         <label for="uid">회원번호 (UID)</label>
         <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
-        <span class="creator-credit">by syapine</span>
+        <span class="creator-credit">by 샤피네</span>
     </div>
     
     <button id="register-all-btn" class="main-btn" disabled>전체 쿠폰 확인하기</button>
     
     <div id="log-container" class="log-container">쿠폰 사용여부가 여기에 표시됩니다.</div>
-    
-    <a href="https://syapine.github.io/sk7r/" id="link-to-inputter" class="link-button" target="_blank">자동입력기로 이동</a>
 </div>
 
 <script>
     const uidInput = document.getElementById('uid');
     const registerBtn = document.getElementById('register-all-btn');
     const logContainer = document.getElementById('log-container');
-    
-    // --- 이 아랫부분이 누락되었습니다 ---
-    const linkButton = document.getElementById('link-to-inputter');
-    const baseLinkUrl = 'https://syapine.github.io/sk7r/';
 
     uidInput.addEventListener('input', () => {
         const uid = uidInput.value.trim();
         if (uid) {
             registerBtn.disabled = false;
             registerBtn.textContent = '전체 쿠폰 확인하기';
-            linkButton.href = `${baseLinkUrl}?uid=${uid}`; // UID가 있으면 링크에 추가
         } else {
             registerBtn.disabled = true;
             registerBtn.textContent = 'UID를 입력하세요';
-            linkButton.href = baseLinkUrl; // UID가 없으면 원래 링크로
         }
     });
 
@@ -158,6 +133,7 @@
                         const couponName = match[3];
                         const message = match[4];
                         
+                        // --- 이 부분 수정: 링크를 다시 넷마블 공식 페이지로 변경 ---
                         const registerUrl = `https://coupon.netmarble.com/tskgb?playerId=${uid}&couponId=${couponCode}`;
                         
                         lineDiv.innerHTML = `${icon} ${index + 1}. <a href="${registerUrl}" target="_blank">${couponCode}</a> ${couponName} - ${message}`;
