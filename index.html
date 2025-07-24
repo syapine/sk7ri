@@ -9,7 +9,7 @@
     
     body { 
         font-family: 'Noto Sans KR', sans-serif;
-        background-image: url('images/seven3.jpg'); 
+        background-image: url('images/seven3.png'); 
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -43,7 +43,6 @@
     .main-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
     .log-container { margin-top: 25px; background-color: rgba(26, 26, 46, 0.7); border-radius: 8px; padding: 15px; min-height: 150px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #b3c5ef; border: 1px solid rgba(31, 64, 104, 0.6); }
 
-    /* --- 이 부분 추가 --- */
     #log-container a {
         color: #63d4ff;
         text-decoration: none;
@@ -66,7 +65,7 @@
 
 <div class="container">
     <h1>세나 리버스 쿠폰 사용 확인기</h1>
-    <p>UID를 입력하고 버튼을 누르면 쿠폰 사용 여부를 확인합니다. 사용하지 않은 쿠폰은 클릭해서 등록하세요.</p>
+    <p>UID를 입력하고 버튼을 누르면 쿠폰 사용 여부를 확인합니다. 미사용 쿠폰은 클릭해서 등록하세요.</p>
     
     <div class="input-group">
         <label for="uid">회원번호 (UID)</label>
@@ -88,7 +87,6 @@
         const uid = uidInput.value.trim();
         if (uid) {
             registerBtn.disabled = false;
-            // 버튼 텍스트 수정
             registerBtn.textContent = '전체 쿠폰 확인하기';
         } else {
             registerBtn.disabled = true;
@@ -101,7 +99,6 @@
         if (!uid) return;
 
         registerBtn.disabled = true;
-        // 버튼 텍스트 수정
         registerBtn.textContent = '확인 중...';
         logContainer.textContent = '최신 쿠폰 목록을 불러와 사용 여부를 확인합니다...';
 
@@ -115,29 +112,25 @@
             const result = await response.json();
 
             if (response.ok) {
-                // --- 이 아랫부분을 클릭 가능한 링크로 만들기 위해 수정 ---
-                logContainer.innerHTML = ''; // 기존 내용을 비웁니다.
+                logContainer.innerHTML = '';
                 const lines = result.log.split('\n');
                 
-                lines.forEach(line => {
+                lines.forEach((line, index) => {
                     const lineDiv = document.createElement('div');
                     
-                    // 정규표현식으로 쿠폰 코드, 이름, 메시지를 분리합니다.
-                    const match = line.match(/(\[.+?\]) (.+?) - (.+)/);
+                    const match = line.match(/^(✅|☑️|❌) \[(.+?)\] (.+?) - (.+)/);
                     
                     if (match) {
-                        const iconAndCode = match[1]; // 예: ✅ [CUTEECHO]
-                        const couponName = match[2];  // 예: 열쇠 120개, 골드15만
-                        const message = match[3];     // 예: 등록 성공!
-                        const couponCode = iconAndCode.substring(iconAndCode.indexOf('[') + 1, iconAndCode.indexOf(']'));
+                        const icon = match[1];
+                        const couponCode = match[2];
+                        const couponName = match[3];
+                        const message = match[4];
                         
-                        // 넷마블 등록 URL 생성
                         const registerUrl = `https://coupon.netmarble.com/tskgb?playerId=${uid}&couponId=${couponCode}`;
                         
-                        // 클릭 가능한 링크(<a>)를 포함한 HTML을 생성
-                        lineDiv.innerHTML = `${iconAndCode.substring(0, iconAndCode.indexOf('['))} <a href="${registerUrl}" target="_blank">${couponCode}</a> ${couponName} - ${message}`;
+                        /* --- 이 부분의 순서만 수정했습니다 --- */
+                        lineDiv.innerHTML = `${icon} ${index + 1}. <a href="${registerUrl}" target="_blank">${couponCode}</a> ${couponName} - ${message}`;
                     } else {
-                        // 형식이 맞지 않는 줄은 그냥 표시
                         lineDiv.textContent = line;
                     }
                     logContainer.appendChild(lineDiv);
@@ -151,7 +144,6 @@
             logContainer.textContent = `치명적인 오류 발생: ${error.message}`;
         } finally {
             registerBtn.disabled = false;
-            // 버튼 텍스트 수정
             registerBtn.textContent = '전체 쿠폰 확인하기';
             uidInput.dispatchEvent(new Event('input'));
         }
