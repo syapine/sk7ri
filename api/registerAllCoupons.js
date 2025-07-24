@@ -27,4 +27,24 @@ async function registerSingleCoupon(uid, coupon) {
 }
 
 export default async function handler(req, res) {
-  const { uid } = a
+  // --- 이전 코드의 오타를 여기서 수정했습니다 ---
+  const { uid } = req.body; 
+  if (!uid) {
+    return res.status(400).json({ message: 'UID가 필요합니다.' });
+  }
+
+  try {
+    const ref = db.ref('coupons');
+    const snapshot = await ref.once('value');
+    const coupons = snapshot.val();
+    const couponArray = Object.keys(coupons).map(key => ({ name: coupons[key].name, code: coupons[key].app_id }));
+
+    const registrationPromises = couponArray.map(coupon => registerSingleCoupon(uid, coupon));
+    const results = await Promise.all(registrationPromises);
+
+    res.status(200).json({ log: results.join('\n') });
+
+  } catch (error) {
+    res.status(500).json({ message: '전체 쿠폰 등록 중 오류가 발생했습니다.', error: error.message });
+  }
+}
