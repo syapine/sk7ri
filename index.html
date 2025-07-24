@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>세나 리버스 쿠폰 자동 입력기 by syapine</title>
+    <title>세나 리버스 쿠폰 사용 확인기 by syapine</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
     
     body { 
         font-family: 'Noto Sans KR', sans-serif;
-        background-image: url('images/seven2.png'); 
+        background-image: url('images/seven3.jpg'); 
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -23,21 +23,18 @@
         box-sizing: border-box; 
     }
 
-.container { 
-    background: rgba(49, 27, 146, 0.75); /* 깊은 보라색 */
-    backdrop-filter: blur(10px); 
-    border-radius: 20px; 
-    padding: 35px; 
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); 
-    border: 1px solid rgba(126, 87, 194, 0.5); /* 연한 보라색 테두리 */
-}
-
-h1 { 
-    color: #d1c4e9; /* 부드러운 라벤더색 제목 */
-    text-align: center; 
-    margin-bottom: 5px; 
-    font-weight: 700; 
-}
+    .container { 
+        width: 100%; 
+        max-width: 500px; 
+        background: rgba(22, 36, 71, 0.75);
+        backdrop-filter: blur(10px); 
+        border-radius: 20px; 
+        padding: 35px; 
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); 
+        border: 1px solid rgba(31, 64, 104, 0.4); 
+    }
+    h1 { color: #63d4ff; text-align: center; margin-bottom: 5px; font-weight: 700; }
+    p { text-align: center; margin-bottom: 30px; color: #a0aec0; }
     .input-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 10px; font-weight: 700; }
     input[type="text"] { width: 100%; padding: 15px; background-color: rgba(26, 26, 46, 0.7); border: 1px solid rgba(31, 64, 104, 0.6); border-radius: 10px; color: #e0e0e0; font-size: 16px; box-sizing: border-box; transition: border-color 0.3s ease; }
@@ -47,6 +44,15 @@ h1 {
     .log-container { margin-top: 25px; background-color: rgba(26, 26, 46, 0.7); border-radius: 8px; padding: 15px; min-height: 150px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #b3c5ef; border: 1px solid rgba(31, 64, 104, 0.6); }
 
     /* --- 이 부분 추가 --- */
+    #log-container a {
+        color: #63d4ff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    #log-container a:hover {
+        text-decoration: underline;
+    }
+
     .creator-credit {
         display: block;
         text-align: right;
@@ -59,22 +65,21 @@ h1 {
 <body>
 
 <div class="container">
-    <h1>세나 리버스 쿠폰 자동 입력기</h1>
-    <p>UID를 입력하시면 사용 가능한 모든 쿠폰이 자동으로 등록됩니다.</p>
+    <h1>세나 리버스 쿠폰 사용 확인기</h1>
+    <p>UID를 입력하고 버튼을 누르면 쿠폰 사용 여부를 확인합니다. 사용하지 않은 쿠폰은 클릭해서 등록하세요.</p>
     
     <div class="input-group">
         <label for="uid">회원번호 (UID)</label>
         <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
-        <span class="creator-credit">by 샤피네</span>
+        <span class="creator-credit">by syapine</span>
     </div>
     
-    <button id="register-all-btn" class="main-btn" disabled>UID를 입력하세요</button>
+    <button id="register-all-btn" class="main-btn" disabled>전체 쿠폰 확인하기</button>
     
-    <div id="log-container" class="log-container">입력된 쿠폰보상이 표시됩니다.</div>
+    <div id="log-container" class="log-container">결과 로그가 여기에 표시됩니다.</div>
 </div>
 
 <script>
-    // JavaScript 코드는 변경사항 없습니다.
     const uidInput = document.getElementById('uid');
     const registerBtn = document.getElementById('register-all-btn');
     const logContainer = document.getElementById('log-container');
@@ -83,7 +88,8 @@ h1 {
         const uid = uidInput.value.trim();
         if (uid) {
             registerBtn.disabled = false;
-            registerBtn.textContent = '전체 쿠폰 등록하기';
+            // 버튼 텍스트 수정
+            registerBtn.textContent = '전체 쿠폰 확인하기';
         } else {
             registerBtn.disabled = true;
             registerBtn.textContent = 'UID를 입력하세요';
@@ -95,8 +101,9 @@ h1 {
         if (!uid) return;
 
         registerBtn.disabled = true;
-        registerBtn.textContent = '등록 진행 중...';
-        logContainer.textContent = '최신 쿠폰 목록을 불러와 등록을 시작합니다...';
+        // 버튼 텍스트 수정
+        registerBtn.textContent = '확인 중...';
+        logContainer.textContent = '최신 쿠폰 목록을 불러와 사용 여부를 확인합니다...';
 
         try {
             const response = await fetch('/api/registerAllCoupons', {
@@ -108,7 +115,34 @@ h1 {
             const result = await response.json();
 
             if (response.ok) {
-                logContainer.textContent = result.log;
+                // --- 이 아랫부분을 클릭 가능한 링크로 만들기 위해 수정 ---
+                logContainer.innerHTML = ''; // 기존 내용을 비웁니다.
+                const lines = result.log.split('\n');
+                
+                lines.forEach(line => {
+                    const lineDiv = document.createElement('div');
+                    
+                    // 정규표현식으로 쿠폰 코드, 이름, 메시지를 분리합니다.
+                    const match = line.match(/(\[.+?\]) (.+?) - (.+)/);
+                    
+                    if (match) {
+                        const iconAndCode = match[1]; // 예: ✅ [CUTEECHO]
+                        const couponName = match[2];  // 예: 열쇠 120개, 골드15만
+                        const message = match[3];     // 예: 등록 성공!
+                        const couponCode = iconAndCode.substring(iconAndCode.indexOf('[') + 1, iconAndCode.indexOf(']'));
+                        
+                        // 넷마블 등록 URL 생성
+                        const registerUrl = `https://coupon.netmarble.com/tskgb?playerId=${uid}&couponId=${couponCode}`;
+                        
+                        // 클릭 가능한 링크(<a>)를 포함한 HTML을 생성
+                        lineDiv.innerHTML = `${iconAndCode.substring(0, iconAndCode.indexOf('['))} <a href="${registerUrl}" target="_blank">${couponCode}</a> ${couponName} - ${message}`;
+                    } else {
+                        // 형식이 맞지 않는 줄은 그냥 표시
+                        lineDiv.textContent = line;
+                    }
+                    logContainer.appendChild(lineDiv);
+                });
+
             } else {
                 logContainer.textContent = `오류 발생: ${result.message || '알 수 없는 서버 오류'}`;
             }
@@ -117,7 +151,8 @@ h1 {
             logContainer.textContent = `치명적인 오류 발생: ${error.message}`;
         } finally {
             registerBtn.disabled = false;
-            registerBtn.textContent = '전체 쿠폰 등록하기';
+            // 버튼 텍스트 수정
+            registerBtn.textContent = '전체 쿠폰 확인하기';
             uidInput.dispatchEvent(new Event('input'));
         }
     });
