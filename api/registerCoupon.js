@@ -1,5 +1,3 @@
-// 이 파일이 실제 넷마블 서버와 통신하는 핵심 파일입니다.
-
 export default async function handler(req, res) {
   // 프론트엔드에서 보낸 UID와 쿠폰 코드를 받습니다.
   const { uid, couponCode } = req.body;
@@ -9,13 +7,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 넷마블 쿠폰 등록 서버에 데이터를 보냅니다.
+
     const response = await fetch('https://coupon.netmarble.com/api/coupon/use/tskgb', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      // 넷마블 서버가 요구하는 데이터 형식에 맞춰 보냅니다.
+
       body: JSON.stringify({
         "channel": "COUPON",
         "couponId": couponCode,
@@ -25,7 +23,7 @@ export default async function handler(req, res) {
 
     const result = await response.json();
 
-    // 넷마블 서버의 응답을 그대로 프론트엔드로 전달합니다.
+
     res.status(response.status).json(result);
 
   } catch (error) {

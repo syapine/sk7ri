@@ -18,7 +18,6 @@ async function registerSingleCoupon(uid, coupon) {
     const response = await fetch(targetUrl);
     const result = await response.json();
     
-    // --- 이 아랫부분의 메시지 형식을 수정했습니다 ---
     if (!result.errorCode) {
       return `✅ [${coupon.code}] ${coupon.name} - 등록 성공!`;
     } else {

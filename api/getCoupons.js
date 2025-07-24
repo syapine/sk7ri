@@ -3,7 +3,6 @@
 import admin from 'firebase-admin';
 
 // Firebase Admin SDK 초기화
-// Vercel 환경 변수에서 서비스 계정 키를 읽어옵니다.
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)),
@@ -19,7 +18,6 @@ export default async function handler(req, res) {
     const snapshot = await ref.once('value');
     const coupons = snapshot.val();
 
-    // Firebase에서 가져온 객체를 배열 형태로 변환
     const couponArray = Object.keys(coupons).map(key => ({
       name: coupons[key].name,
       code: coupons[key].code
