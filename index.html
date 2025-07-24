@@ -3,11 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>세나 리버스 쿠폰 자동 입력기</title>
+    <title>세나 리버스 쿠폰 자동 입력기 by syapine</title>
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
-    body { font-family: 'Noto Sans KR', sans-serif; background: linear-gradient(135deg, #0e0e1a, #0a0a14); color: #e0e0e0; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; box-sizing: border-box; }
-    .container { width: 100%; max-width: 500px; background: rgba(22, 36, 71, 0.5); backdrop-filter: blur(10px); border-radius: 20px; padding: 35px; box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); border: 1px solid rgba(31, 64, 104, 0.4); }
+    
+    body { 
+        font-family: 'Noto Sans KR', sans-serif;
+        background-image: url('images/seven3.jpg'); 
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: #e0e0e0; 
+        margin: 0; 
+        padding: 20px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        min-height: 100vh; 
+        box-sizing: border-box; 
+    }
+
+    .container { 
+        width: 100%; 
+        max-width: 500px; 
+        background: rgba(22, 36, 71, 0.75);
+        backdrop-filter: blur(10px); 
+        border-radius: 20px; 
+        padding: 35px; 
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6); 
+        border: 1px solid rgba(31, 64, 104, 0.4); 
+    }
     h1 { color: #63d4ff; text-align: center; margin-bottom: 5px; font-weight: 700; }
     p { text-align: center; margin-bottom: 30px; color: #a0aec0; }
     .input-group { margin-bottom: 20px; }
@@ -17,6 +42,15 @@
     .main-btn { width: 100%; padding: 15px; background: linear-gradient(45deg, #13E2DA, #1E90FF); color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; }
     .main-btn:disabled { background: #555; cursor: not-allowed; opacity: 0.6; }
     .log-container { margin-top: 25px; background-color: rgba(26, 26, 46, 0.7); border-radius: 8px; padding: 15px; min-height: 150px; white-space: pre-wrap; word-wrap: break-word; font-family: monospace; color: #b3c5ef; border: 1px solid rgba(31, 64, 104, 0.6); }
+
+    /* --- 이 부분 추가 --- */
+    .creator-credit {
+        display: block;
+        text-align: right;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 8px;
+    }
 </style>
 </head>
 <body>
@@ -28,6 +62,7 @@
     <div class="input-group">
         <label for="uid">회원번호 (UID)</label>
         <input type="text" id="uid" placeholder="UID를 여기에 입력하세요">
+        <span class="creator-credit">by syapine</span>
     </div>
     
     <button id="register-all-btn" class="main-btn" disabled>UID를 입력하세요</button>
@@ -36,11 +71,11 @@
 </div>
 
 <script>
+    // JavaScript 코드는 변경사항 없습니다.
     const uidInput = document.getElementById('uid');
     const registerBtn = document.getElementById('register-all-btn');
     const logContainer = document.getElementById('log-container');
 
-    // UID 입력에 따라 버튼 활성화/비활성화
     uidInput.addEventListener('input', () => {
         const uid = uidInput.value.trim();
         if (uid) {
@@ -52,7 +87,6 @@
         }
     });
 
-    // '전체 등록' 버튼 클릭 시 동작
     registerBtn.addEventListener('click', async () => {
         const uid = uidInput.value.trim();
         if (!uid) return;
@@ -81,7 +115,7 @@
         } finally {
             registerBtn.disabled = false;
             registerBtn.textContent = '전체 쿠폰 등록하기';
-            uidInput.dispatchEvent(new Event('input')); // 버튼 상태 다시 체크
+            uidInput.dispatchEvent(new Event('input'));
         }
     });
 </script>
