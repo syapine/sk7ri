@@ -101,14 +101,14 @@ h1 {
         registerBtn.textContent = '등록 진행 중...';
         logContainer.textContent = '최신 쿠폰 목록을 불러와 등록을 시작합니다...';
 
-        try {
-            const response = await fetch('/api/registerAllCoupons', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid })
-            });
+try {
+    const response = await fetch('/api/registerAllCoupons.py', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uid })
+    });
 
-            const result = await response.json();
+    const result = await response.json();
 
             if (response.ok) {
                 logContainer.textContent = result.log;
