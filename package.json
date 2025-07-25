@@ -1,8 +1,0 @@
-{
-  "name": "sk7ri-coupon-backend",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "firebase-admin": "^13.4.0"
-  }
-}
