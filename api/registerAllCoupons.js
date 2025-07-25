@@ -15,13 +15,19 @@ async function registerSingleCoupon(uid, coupon) {
   try {
     const targetUrl = `https://coupon.netmarble.com/api/coupon/reward?gameCode=tskgb&couponCode=${coupon.code}&langCd=KO_KR&pid=${uid}`;
 
-    const response = await fetch(targetUrl);
+    // --- 이 부분 수정: headers에 User-Agent 추가 ---
+    const response = await fetch(targetUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+      }
+    });
+    
     const result = await response.json();
     
     // 실제 응답 데이터의 errorCode를 기준으로 모든 케이스를 처리
     if (result.errorCode === 200 && result.success === true) {
-      // --- 바로 이 부분의 메시지가 수정되었습니다 ---
-      return `✅ [${coupon.code}] ${coupon.name} - 미사용 쿠폰입니다.`;
+      return `✅ [${coupon.code}] ${coupon.name} - 등록 성공! (보상 지급)`;
     } 
     else if (result.errorCode === 24004) {
       return `☑️ [${coupon.code}] ${coupon.name} - 이미 사용한 쿠폰입니다.`;
