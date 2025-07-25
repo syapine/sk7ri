@@ -6,9 +6,9 @@ import requests
 import firebase_admin
 from firebase_admin import credentials, db
 import os
+from concurrent.futures import ThreadPoolExecutor
 
 # Firebase Admin SDK 초기화
-# Vercel 환경 변수에서 서비스 계정 키를 읽어옵니다.
 if not firebase_admin._apps:
     cert_json = json.loads(os.environ.get('FIREBASE_SERVICE_ACCOUNT_KEY'))
     cred = credentials.Certificate(cert_json)
@@ -16,13 +16,16 @@ if not firebase_admin._apps:
         'databaseURL': 'https://sk7re-9eefb-default-rtdb.firebaseio.com/'
     })
 
-# 개별 쿠폰을 등록하고 결과를 해석하는 함수
-def register_single_coupon(uid, coupon):
+# 개별 쿠폰을 등록하는 함수 (변경 없음)
+def register_single_coupon(data):
+    uid, coupon = data
     try:
         target_url = f"https://coupon.netmarble.com/api/coupon/reward?gameCode=tskgb&couponCode={coupon['code']}&langCd=KO_KR&pid={uid}"
         
-        # Python requests 라이브러리는 브라우저와 유사한 User-Agent를 기본으로 사용합니다.
-        response = requests.get(target_url)
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36'
+        }
+        response = requests.get(target_url, headers=headers)
         result = response.json()
 
         if result.get('errorCode') == 200 and result.get('success') == True:
@@ -50,15 +53,15 @@ class handler(BaseHTTPRequestHandler):
             return
 
         try:
-            # Firebase에서 쿠폰 목록 가져오기
             ref = db.reference('coupons')
             coupons = ref.get()
             coupon_array = [{'name': v['name'], 'code': v['app_id']} for k, v in coupons.items()]
 
-            # 모든 쿠폰 등록 시도
-            results = [register_single_coupon(uid, c) for c in coupon_array]
+            # --- 이 부분 수정: ThreadPoolExecutor를 사용해 모든 요청을 동시에 보냅니다 ---
+            tasks = [(uid, c) for c in coupon_array]
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                results = list(executor.map(register_single_coupon, tasks))
             
-            # 성공 응답 전송
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
